@@ -20,7 +20,7 @@ let getAll = async (req, res) => {
         const user = req.user
         await user.populate('images').execPopulate()
         for(let i =0;i<500;i++) {
-            base64Images.push('data:image/png;base64, ' + getBase64formImage(user.images[i]));
+            base64Images.push('data:image/png;base64, ' + getBase64formImage(user.images[i].picture));
         }
         res.send(base64Images)
     } catch (e) {
