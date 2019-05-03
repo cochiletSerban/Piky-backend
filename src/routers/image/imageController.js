@@ -1,39 +1,35 @@
 const Image = require('../../models/image')
 
 let upload = async (req,  res) => {
-     console.log(req.files);
+     console.log(req.body.yolo);
 
     req.files.forEach(async image => {
         await new Image({
-            description: 'pozaLAsef',
+            title: req.body.title,
+            fileName: image.originalname,
+            description: req.body.description,
             picture: image.buffer,
             owner: req.user._id
         }).save()
     })
-  
     res.status(201).send('gg wp boss')
 }
 
-let getAll = async (req, res) => {
+let getAllPublic = async (req, res) => {
     try {
-        let base64Images = [];
-        const user = req.user
-        await user.populate('images').execPopulate()
-        for(let i =0;i<500;i++) {
-            base64Images.push('data:image/png;base64, ' + getBase64formImage(user.images[i].picture));
-        }
-        res.send(base64Images)
+        const userImages = await Image.find({}) // add a query
+            .limit(parseInt(req.query.limit))
+            .skip(parseInt(req.query.skip))
+            .populate('owner',).exec()
+
+        res.send(userImages)
     } catch (e) {
         res.status(404).send()
     }
 }
 
-let getBase64formImage = function getBase64formImage (image) {
-    return image.toString('base64');
-}
 
 module.exports = {
-    upload: upload, 
-    getAll: getAll,
-    getBase64formImage:getBase64formImage
+    upload: upload,
+    getAllPublic: getAllPublic,
 }

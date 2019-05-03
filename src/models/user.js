@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 4,
         trim: true,
+        select: false,
     },
     role: {
         type: String,
@@ -34,8 +35,9 @@ const userSchema = new mongoose.Schema({
     active: {
         type: Boolean,
         default: true
-    }
-})
+    },
+}, {toObject: {
+}})
 
 userSchema.virtual('entries', {
     ref: 'Entry',
@@ -49,12 +51,27 @@ userSchema.virtual('images', {
     foreignField: 'owner'
 })
 
+// this gets called always when accessing a document returned by a query
 userSchema.methods.toJSON = function () {
-    const user = this
-    const userObject = user.toObject()
-    delete userObject.password
-    return userObject
+    let user = this.toObject()
+    user.email = this.email
+    return user
 }
+
+// this gets called when populate is used
+userSchema.options.toObject.transform = function (doc, ret) {
+    delete ret.email
+    delete ret.__v
+    delete ret.active
+    delete ret.images
+    delete ret.entries
+    delete ret.id
+    return ret
+}
+
+
+//userSchema.set('toJSON', { virtuals: true })
+
 
 userSchema.methods.generateAuthToken = async function () {
     const user = this
