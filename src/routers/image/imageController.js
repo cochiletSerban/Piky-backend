@@ -1,14 +1,16 @@
 const Image = require('../../models/image')
 
 let upload = async (req,  res) => {
-     console.log(req.file);
-    const image = new Image({
-        description: 'pozaLAsef',
-        picture: req.file.buffer,
-        owner: req.user._id
-    })
+     console.log(req.files);
 
-    await image.save()
+    req.files.forEach(async image => {
+        await new Image({
+            description: 'pozaLAsef',
+            picture: image.buffer,
+            owner: req.user._id
+        }).save()
+    })
+  
     res.status(201).send('gg wp boss')
 }
 
