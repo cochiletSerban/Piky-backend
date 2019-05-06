@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
+var httpErrors = require('http-errors')
 
 const auth = async (req, res, next) => {
     try {
@@ -13,7 +14,10 @@ const auth = async (req, res, next) => {
         req.user = user
         next()
     } catch (e) {
-        res.status(401).send({ error: 'Please authenticate.' })
+        //let err = httpErrors.NotFound('The thing you were looking for was not found');
+        //console.log(httpErrors(401, 'Please login to view this page.'))
+        
+         return next(httpErrors.NotFound())
     }
 }
 
