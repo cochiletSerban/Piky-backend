@@ -16,6 +16,7 @@
     "express": "^4.16.4",
     "http-errors": "^1.7.2",
     "httperrors": "^2.3.0",
+    "joi": "^14.3.1",
     "jsonwebtoken": "^8.4.0",
     "mongodb": "^3.1.10",
     "mongoose": "^5.3.16",

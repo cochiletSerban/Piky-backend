@@ -1,24 +1,36 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
-var httpErrors = require('http-errors')
+const httpErrors = require('http-errors')
+const validators = require('../utils/validators/validators')
 
 const auth = async (req, res, next) => {
     try {
-        const token = req.header('Authorization').replace('Bearer ', '')
-        const decoded = jwt.verify(token, 'secret')
-        const user = await User.findOne({ _id: decoded._id })
 
-        if (!user) {
-            throw new Error('sadfsadfsdfdsfdsfdsfdsfds')
-        }
-        req.user = user
-        next()
-    } catch (e) {
-        //let err = httpErrors.NotFound('The thing you were looking for was not found');
-        //console.log(httpErrors(401, 'Please login to view this page.'))
+       if (!validators.isJwtProvided(req.header('Authorization'))) {
+           return next(httpErrors.BadRequest('JWT not provided / not provided properly'))
+       }
+
+       const token = req.header('Authorization').replace('Bearer ', '')
         
-         return next(httpErrors.NotFound())
+       const decoded = jwt.verify(token, 'secret')
+       
+       const user = await User.findOne({ _id: decoded._id })
+       if(!user) {
+        return next(httpErrors.Unauthorized(`User with email: ${decoded.username} doesn't exist`))
+       }
+       
+       req.user = user
+       next()
+
+    } catch (e) {
+        if(String(e.constructor.name) === 'JsonWebTokenError') {
+            return next(httpErrors.BadRequest('Invalid/Expired jwt'))
+        }
     }
 }
 
 module.exports = auth
+
+// bad request bad jwt / no jwt - validate with joi
+// bad secret / expired token // jwt verify 
+// no user found - find one null
