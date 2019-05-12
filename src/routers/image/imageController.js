@@ -17,12 +17,12 @@ let upload = async (req,  res) => {
 
 let getAllPublic = async (req, res) => {
     try {
-        const userImages = await Image.find({}) // add a query
+        const allImages = await Image.find({}) // add a query
             .limit(parseInt(req.query.limit))
             .skip(parseInt(req.query.skip))
-            .populate('owner',).exec()
+            .populate('owner').exec()
 
-        res.send(userImages)
+        res.send(allImages)
     } catch (e) {
         res.status(404).send()
     }
