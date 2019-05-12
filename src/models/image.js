@@ -39,8 +39,9 @@ imageSchema.options.toObject.transform = function (doc, ret) {
     delete ret.createdAt
     delete ret.__v
     delete ret.id
+    delete ret.owner.password
     ret.picture = ret.picture.toString('base64');
-    ret.picture = 'data:image/png;base64, ' + ret.picture
+    ret.picture = 'data:image/png;base64,' + ret.picture
     return ret
 }
 
