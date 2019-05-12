@@ -1,20 +1,36 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
+const httpErrors = require('http-errors')
+const validators = require('../utils/validators/validators')
 
 const auth = async (req, res, next) => {
     try {
-        const token = req.header('Authorization').replace('Bearer ', '')
-        const decoded = jwt.verify(token, 'secret')
-        const user = await User.findOne({ _id: decoded._id })
 
-        if (!user) {
-            throw new Error('sadfsadfsdfdsfdsfdsfdsfds')
-        }
-        req.user = user
-        next()
+       if (!validators.isJwtProvided(req.header('Authorization'))) {
+           return next(httpErrors.BadRequest('JWT not provided / not provided properly'))
+       }
+
+       const token = req.header('Authorization').replace('Bearer ', '')
+        
+       const decoded = jwt.verify(token, 'secret')
+       
+       const user = await User.findOne({ _id: decoded._id })
+       if(!user) {
+        return next(httpErrors.Unauthorized(`User with email: ${decoded.username} doesn't exist`))
+       }
+       
+       req.user = user
+       next()
+
     } catch (e) {
-        res.status(401).send({ error: 'Please authenticate.' })
+        if(String(e.constructor.name) === 'JsonWebTokenError') {
+            return next(httpErrors.BadRequest('Invalid/Expired jwt'))
+        }
     }
 }
 
 module.exports = auth
+
+// bad request bad jwt / no jwt - validate with joi
+// bad secret / expired token // jwt verify 
+// no user found - find one null

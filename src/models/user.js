@@ -26,7 +26,6 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 4,
         trim: true,
-        select: false,
     },
     role: {
         type: String,
@@ -85,13 +84,18 @@ userSchema.methods.generateAuthToken = async function () {
 }
 
 userSchema.statics.findByCredentials = async (email, password) => {
+   
+    
     const user = await User.findOne({ email })
+    
 
     if (!user) {
         throw new Error('Unable to login')
     }
 
+    
     const isMatch = await bcrypt.compare(password, user.password)
+    
 
     if (!isMatch) {
         throw new Error('Unable to login')
