@@ -18,21 +18,29 @@ const imageSchema = new mongoose.Schema({
     },
     picture: {
         type: Buffer,
-        required: true,
+       // required: true,
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'User'
     },
+    rating: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'ImageRating'
+    },
     private: {
         type: Boolean
-
     },
 }, {
     timestamps: true,
     toObject: {}
 })
+
+
+
+
 
 // this gets called when that ^ is not used
 imageSchema.options.toObject.transform = function (doc, ret) {
@@ -40,8 +48,8 @@ imageSchema.options.toObject.transform = function (doc, ret) {
     delete ret.__v
     delete ret.id
     delete ret.owner.password
-    ret.picture = ret.picture.toString('base64');
-    ret.picture = 'data:image/png;base64,' + ret.picture
+    ret.picture = //ret.picture.toString('base64');
+    ret.picture = ''//'data:image/png;base64,' + ret.picture
     return ret
 }
 
@@ -49,8 +57,6 @@ imageSchema.options.toObject.transform = function (doc, ret) {
 imageSchema.methods.toJSON = function () {
     return this.toObject()
 }
-
-
 
 
 const Image = mongoose.model('Image', imageSchema)

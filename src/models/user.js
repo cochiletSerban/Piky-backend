@@ -50,6 +50,12 @@ userSchema.virtual('images', {
     foreignField: 'owner'
 })
 
+userSchema.virtual('likes', {
+    ref: 'ImageRating',
+    localField: '_id',
+    foreignField: 'likes'
+})
+
 // this gets called always when accessing a document returned by a query
 userSchema.methods.toJSON = function () {
     let user = this.toObject()
