@@ -2,8 +2,6 @@ const Image = require('../../models/image')
 const ImageRating = require('../../models/imageRating')
 
 let upload = async (req,  res) => {
-    console.log('saddfdsdfsd');
-    
     let savedRating;
     req.files.forEach(async image => {
 
@@ -20,7 +18,7 @@ let upload = async (req,  res) => {
 
 
     })
-    res.status(201).send('gg wp boss')
+    res.status(201).send()
 }
 
 let getAllPublic = async (req, res) => {
@@ -42,7 +40,7 @@ let likeImage = async(req, res) => {
         const ratingId = imageToLike.rating;
         await ImageRating.findOneAndUpdate({_id: ratingId}, {$pull:{dislikes:req.user._id}})
         await ImageRating.findOneAndUpdate({_id: ratingId}, {$addToSet:{likes:req.user._id}})
-        res.status(200).send('ggwp')
+        res.status(200).send()
     } catch (e) {
         res.status(505).send()
     }
