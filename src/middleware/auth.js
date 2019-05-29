@@ -6,9 +6,9 @@ const validators = require('../utils/validators/validators')
 const auth = async (req, res, next) => {
     try {
 
-       if (!validators.isJwtProvided(req.header('Authorization'))) {
-           return next(httpErrors.BadRequest('JWT not provided / not provided properly'))
-       }
+    //    if (!validators.isJwtProvided(req.header('Authorization'))) {
+    //        return next(httpErrors.BadRequest('JWT not provided / not provided properly'))
+    //    }
 
        const token = req.header('Authorization').replace('Bearer ', '')
         

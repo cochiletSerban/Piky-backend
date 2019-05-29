@@ -2,6 +2,8 @@ const Image = require('../../models/image')
 const ImageRating = require('../../models/imageRating')
 
 let upload = async (req,  res) => {
+    console.log('saddfdsdfsd');
+    
     let savedRating;
     req.files.forEach(async image => {
 
