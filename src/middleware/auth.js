@@ -6,9 +6,9 @@ const validators = require('../utils/validators/validators')
 const auth = async (req, res, next) => {
     try {
 
-    //    if (!validators.isJwtProvided(req.header('Authorization'))) {
-    //        return next(httpErrors.BadRequest('JWT not provided / not provided properly'))
-    //    }
+       if (!validators.isJwtProvided(req.header('Authorization'))) {
+           return next(httpErrors.BadRequest('JWT not provided / not provided properly, adica nu ai voie boss'))
+       }
 
        const token = req.header('Authorization').replace('Bearer ', '')
         
@@ -23,8 +23,10 @@ const auth = async (req, res, next) => {
        next()
 
     } catch (e) {
+ 
+        
         if(String(e.constructor.name) === 'JsonWebTokenError') {
-            return next(httpErrors.BadRequest('Invalid/Expired jwt'))
+            return next(httpErrors.BadRequest('Invalid/Expired jwt, adica nu ai voie boss'))
         }
     }
 }

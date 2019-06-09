@@ -30,9 +30,18 @@ const imageSchema = new mongoose.Schema({
         required: true,
         ref: 'ImageRating'
     },
-    private: {
-        type: Boolean
+    comms: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'ImageComment'
     },
+    private: {
+        type: Boolean,
+        required: true
+    },
+    avatar: {
+        type: Boolean,
+        required: true
+    }
 }, {
     timestamps: true,
     toObject: {}
@@ -47,7 +56,10 @@ imageSchema.options.toObject.transform = function (doc, ret) {
     delete ret.createdAt
     delete ret.__v
     delete ret.id
+    delete ret.comms
     delete ret.owner.password
+    delete ret.rating._id
+    delete ret.rating.__v
     ret.picture = ret.picture.toString('base64');
     ret.picture = 'data:image/png;base64,' + ret.picture
     return ret

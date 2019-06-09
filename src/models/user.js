@@ -26,15 +26,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 4,
         trim: true,
-    },
-    role: {
-        type: String,
-        required: false,
-    },
-    active: {
-        type: Boolean,
-        default: true
-    },
+    }
 }, {toObject: {
 }})
 
@@ -49,6 +41,7 @@ userSchema.virtual('images', {
     localField: '_id',
     foreignField: 'owner'
 })
+
 
 userSchema.virtual('likes', {
     ref: 'ImageRating',

@@ -4,12 +4,11 @@ const ImageRating = require('../../models/imageRating')
 const jwt = require('jsonwebtoken')
 const httpErrors = require('http-errors')
 
+
 let upload = async (req,  res) => {
     let savedRating;
     req.files.forEach(async image => {
-
         savedRating = await new ImageRating({}).save()
-
         await new Image({
             title: req.body.title,
             fileName: image.originalname,
@@ -17,7 +16,8 @@ let upload = async (req,  res) => {
             picture: image.buffer,
             owner: req.user._id,
             rating: savedRating._id,
-            private: req.body.private
+            private: Boolean(req.body.private),
+            avatar: Boolean(req.body.avatar)
         }).save()
 
 
@@ -95,20 +95,19 @@ let isUserValid = async(req) => {
 
 let getImageById = async(req, res, next) => {
     try {
-        
         const image = await Image.findOne({_id: req.params.imageId}) // add a query
             .populate('rating').populate('owner').exec()
-        
+
         if (!image.private) {
            return res.send(image)
-        } 
+        }
 
         const userId = await isUserValid(req)
 
         if(!userId) {
             return next(httpErrors.BadRequest('esti un slaban si nu ai voie'))
         }
-        
+
         if (image.private && image.owner._id.toString() === userId.toString()) {
             return res.send(image)
         }
@@ -120,6 +119,7 @@ let getImageById = async(req, res, next) => {
     }
 }
 
+
 module.exports = {
     upload: upload,
     getAllPublic: getAllPublic,
@@ -127,5 +127,5 @@ module.exports = {
     dislikeImage: dislikeImage,
     resetImageRating: resetImageRating,
     getImageById: getImageById,
-    isUserValid:isUserValid
+    isUserValid:isUserValid,
 }
