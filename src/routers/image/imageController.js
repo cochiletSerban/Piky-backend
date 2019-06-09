@@ -9,6 +9,9 @@ let upload = async (req,  res) => {
     let savedRating;
     req.files.forEach(async image => {
         savedRating = await new ImageRating({}).save()
+
+
+
         await new Image({
             title: req.body.title,
             fileName: image.originalname,
@@ -16,8 +19,8 @@ let upload = async (req,  res) => {
             picture: image.buffer,
             owner: req.user._id,
             rating: savedRating._id,
-            private: Boolean(req.body.private),
-            avatar: Boolean(req.body.avatar)
+            private: req.body.private === undefined ? false : req.body.private,
+            avatar: req.body.avatar === undefined ? false : req.body.avatar
         }).save()
 
 
