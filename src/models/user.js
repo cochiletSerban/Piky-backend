@@ -26,7 +26,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 4,
         trim: true,
-    }
+    },
+    avatar: {
+        type: Buffer
+    },
 }, {toObject: {
 }})
 
@@ -114,12 +117,12 @@ userSchema.pre('save', async function (next) {
     next()
 })
 
-// Delete user tasks when user is removed
-userSchema.pre('remove', async function (next) {
-    const user = this
-    await Task.deleteMany({ owner: user._id })
-    next()
-})
+// // Delete user tasks when user is removed
+// userSchema.pre('remove', async function (next) {
+//     const user = this
+//     await Task.deleteMany({ owner: user._id })
+//     next()
+// })
 
 const User = mongoose.model('User', userSchema)
 

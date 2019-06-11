@@ -17,7 +17,17 @@ let toggleActive = async (req, res) => {
     }
 }
 
+let uploadAvatar = async (req, res) => {
+    try {
+        await User.findOneAndUpdate({_id:req.user._id}, {$set:{avatar:req.file.buffer}})
+        res.status(201).send()
+    } catch (e) {
+        res.status(500).send(e)
+    }
+}
+
 module.exports = {
   getAll:getAll,
-  toggleActive:toggleActive
+  toggleActive:toggleActive,
+  uploadAvatar: uploadAvatar
 }
