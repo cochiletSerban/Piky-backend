@@ -30,8 +30,9 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: Buffer
     },
-}, {toObject: {
-}})
+}, {
+    toObject: {}
+})
 
 userSchema.virtual('entries', {
     ref: 'Entry',
@@ -54,9 +55,9 @@ userSchema.virtual('likes', {
 
 // this gets called always when accessing a document returned by a query
 userSchema.methods.toJSON = function () {
-    let user = this.toObject()
-    user.email = this.email
-    return user
+    //let user = this.toObject()
+    //user.email = this.email
+    return  this.toObject()
 }
 
 // this gets called when populate is used
@@ -67,6 +68,9 @@ userSchema.options.toObject.transform = function (doc, ret) {
     delete ret.images
     delete ret.entries
     delete ret.id
+    delete ret.password
+    ret.avatar = ret.avatar.toString('base64');
+    ret.avatar = 'data:image/png;base64,' + ret.avatar
     return ret
 }
 

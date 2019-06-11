@@ -7,7 +7,7 @@ const auth = require('../../middleware/auth')
 const multerUpload = require('../image/multerConfig').multerConfig
 
 userRouter.use('/auth', authRouter)
-userRouter.get('', userController.getAll)
+userRouter.get('', auth, userController.getUserDetailes)
 userRouter.patch('/:id', userController.toggleActive)
 userRouter.patch('/:id', userController.toggleActive)
 userRouter.get('/:id/entries', userEntryController.getAll)

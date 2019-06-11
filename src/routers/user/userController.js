@@ -26,8 +26,18 @@ let uploadAvatar = async (req, res) => {
     }
 }
 
+let getUserDetailes = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id)
+        res.status(200).send(user);
+    } catch (error) {
+        res.status(404).json("user not found")
+    }
+}
+
 module.exports = {
   getAll:getAll,
   toggleActive:toggleActive,
-  uploadAvatar: uploadAvatar
+  uploadAvatar: uploadAvatar,
+  getUserDetailes: getUserDetailes
 }
