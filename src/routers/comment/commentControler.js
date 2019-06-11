@@ -8,7 +8,8 @@ let postComment = async(req, res) => {
             text: req.body.text
         }).save()
 
-       const image= await Image.findOneAndUpdate({_id: req.body.imageId}, {$push:{comms:comm._id}})
+       await Image.findOneAndUpdate({_id: req.body.imageId}, {$push:{comms:comm._id}})
+       const image = await Image.findOne({_id: req.body.imageId})
        comms = await ImageComment.where('_id').in(image.comms)
         .limit(parseInt(0)).sort({'createdAt': 'desc'}).populate('owner').exec()
 
