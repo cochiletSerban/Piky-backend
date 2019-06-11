@@ -53,7 +53,7 @@ const imageSchema = new mongoose.Schema({
 
 // this gets called when that ^ is not used
 imageSchema.options.toObject.transform = function (doc, ret) {
-    delete ret.createdAt
+    delete ret.updatedAt
     delete ret.__v
     delete ret.id
     delete ret.comms

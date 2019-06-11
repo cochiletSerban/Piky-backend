@@ -33,7 +33,7 @@ imageCommentSchema.virtual('comment', {
 
 
 imageCommentSchema.options.toObject.transform = function (doc, ret) {
-    delete ret.createdAt
+    delete ret.updatedAt
     delete ret.__v
     delete ret._id //
     delete ret.likes //
