@@ -56,7 +56,7 @@ imageSchema.options.toObject.transform = function (doc, ret) {
     delete ret.updatedAt
     delete ret.__v
     delete ret.id
-    delete ret.comms
+    ret.comms = ret.comms.length
     delete ret.owner.password
     delete ret.rating._id
     delete ret.rating.__v
