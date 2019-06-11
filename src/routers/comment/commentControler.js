@@ -8,10 +8,9 @@ let postComment = async(req, res) => {
             text: req.body.text
         }).save()
 
-       await Image.findOneAndUpdate({_id: req.body.imageId}, {$push:{comms:comm._id}})
-       const image = await Image.findOne({_id: req.body.imageId})
+       const image = await Image.findOneAndUpdate({_id: req.body.imageId}, {$push:{comms:comm._id}}, {new:true})
        comms = await ImageComment.where('_id').in(image.comms)
-        .limit(parseInt(0)).sort({'createdAt': 'desc'}).populate('owner').exec()
+        .limit(parseInt(0)).populate('owner').sort({'createdAt': 'desc'}).exec()
 
        res.status(201).send(comms[0])
 
