@@ -1,4 +1,5 @@
 const User = require('../../models/user')
+const sharp = require('sharp');
 
 let getAll = async (req, res) => {
     try {
@@ -19,7 +20,8 @@ let toggleActive = async (req, res) => {
 
 let uploadAvatar = async (req, res) => {
     try {
-        await User.findOneAndUpdate({_id:req.user._id}, {$set:{avatar:req.file.buffer}})
+        const avatar = await sharp(req.file.buffer).resize({ width: 200 }).toBuffer() // maybe 500px
+        await User.findOneAndUpdate({_id:req.user._id}, {$set:{avatar}})
         res.status(201).send()
     } catch (e) {
         res.status(500).send(e)
