@@ -20,7 +20,7 @@ let toggleActive = async (req, res) => {
 
 let uploadAvatar = async (req, res) => {
     try {
-        const avatar = await sharp(req.file.buffer).resize({ width: 200 }).toBuffer() // maybe 500px
+        const avatar = await sharp(req.file.buffer).resize({ width: 269 }).toBuffer() // maybe 500px
         await User.findOneAndUpdate({_id:req.user._id}, {$set:{avatar}})
         res.status(201).send()
     } catch (e) {

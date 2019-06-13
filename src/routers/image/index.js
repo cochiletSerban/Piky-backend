@@ -4,6 +4,7 @@ const auth = require('../../middleware/auth')
 const multerUpload = require('./multerConfig').multerConfig
 
 imageRouter.post('', auth, multerUpload.array('image', 100), imageControler.upload)
+imageRouter.post('/small', auth, multerUpload.array('image', 100), imageControler.smallUpload)
 imageRouter.get('', imageControler.getAllPublic)
 imageRouter.get('/:imageId', imageControler.getImageById),
 imageRouter.post('/like', auth, imageControler.likeImage)

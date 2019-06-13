@@ -8,6 +8,10 @@ let getAll = async (req, res) => {
             options: {
                 limit: parseInt(req.query.limit),
                 skip: parseInt(req.query.skip),
+                sort: {'createdAt': 'desc'}
+            },
+            match: {
+                private: req.query.private === undefined ? false : req.query.private
             }
         }).execPopulate()
         res.send(user.images)

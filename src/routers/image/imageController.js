@@ -3,14 +3,13 @@ const User = require('../../models/user')
 const ImageRating = require('../../models/imageRating')
 const jwt = require('jsonwebtoken')
 const httpErrors = require('http-errors')
+const sharp = require('sharp');
 
 
 let upload = async (req,  res) => {
     let savedRating;
     req.files.forEach(async image => {
         savedRating = await new ImageRating({}).save()
-
-
 
         await new Image({
             title: req.body.title,
@@ -26,6 +25,34 @@ let upload = async (req,  res) => {
 
     })
     res.status(201).send()
+}
+
+
+let smallUpload = async (req, res) => {
+    try {
+        let savedRating;
+        req.files.forEach(async image => {
+            savedRating = await new ImageRating({}).save()
+            const img = await sharp(image.buffer).resize({ width: 269 }).toBuffer() // maybe 500px
+
+            await new Image({
+                title: req.body.title,
+                fileName: image.originalname,
+                description: req.body.description,
+                picture: img,
+                owner: req.user._id,
+                rating: savedRating._id,
+                private: req.body.private === undefined ? false : req.body.private,
+                avatar: req.body.avatar === undefined ? false : req.body.avatar
+            }).save()
+
+
+        })
+        res.status(201).send()
+    } catch(e) {
+        console.log(e);
+        res.status(500).send()
+    }
 }
 
 let getAllPublic = async (req, res) => {
@@ -131,4 +158,5 @@ module.exports = {
     resetImageRating: resetImageRating,
     getImageById: getImageById,
     isUserValid:isUserValid,
+    smallUpload: smallUpload
 }
