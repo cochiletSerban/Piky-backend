@@ -18,7 +18,7 @@ const imageSchema = new mongoose.Schema({
     },
     picture: {
         type: Buffer,
-       // required: true,
+        required: true,
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
@@ -33,6 +33,10 @@ const imageSchema = new mongoose.Schema({
     comms: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'ImageComment'
+    },
+    coordinate: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Coordinate'
     },
     private: {
         type: Boolean,
@@ -60,8 +64,13 @@ imageSchema.options.toObject.transform = function (doc, ret) {
     delete ret.owner.password
     delete ret.rating._id
     delete ret.rating.__v
-    ret.picture = ret.picture.toString('base64');
-    ret.picture = 'data:image/png;base64,' + ret.picture
+   // ret.picture = ret.picture.toString('base64');
+    //ret.picture = 'data:image/png;base64,' + ret.picture
+    delete ret.picture
+
+
+
+    
     return ret
 }
 

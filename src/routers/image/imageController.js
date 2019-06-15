@@ -1,16 +1,25 @@
 const Image = require('../../models/image')
 const User = require('../../models/user')
+
 const ImageRating = require('../../models/imageRating')
+const Coordinate = require('../../models/coordinate')
 const jwt = require('jsonwebtoken')
 const httpErrors = require('http-errors')
 const sharp = require('sharp');
+const geolib = require('geolib');
 
 
 let upload = async (req,  res) => {
     let savedRating;
+    let coordinate;
     req.files.forEach(async image => {
         savedRating = await new ImageRating({}).save()
-
+        if (req.body.avatar === false) {
+            coordinate = await new Coordinate({
+                lat: req.body.lat,
+                lon: req.body.lon,
+            }).save()
+        }
         await new Image({
             title: req.body.title,
             fileName: image.originalname,
@@ -18,21 +27,26 @@ let upload = async (req,  res) => {
             picture: image.buffer,
             owner: req.user._id,
             rating: savedRating._id,
+            coordinate: coordinate._id,
             private: req.body.private === undefined ? false : req.body.private,
             avatar: req.body.avatar === undefined ? false : req.body.avatar
         }).save()
-
-
     })
     res.status(201).send()
 }
 
-
 let smallUpload = async (req, res) => {
     try {
         let savedRating;
+        let coordinate;
         req.files.forEach(async image => {
             savedRating = await new ImageRating({}).save()
+            if (req.body.avatar === false) {
+                coordinate = await new Coordinate({
+                    lat: req.body.lat,
+                    lon: req.body.lon,
+                }).save()
+            }
             const img = await sharp(image.buffer).resize({ width: 269 }).toBuffer() // maybe 500px
 
             await new Image({
@@ -41,12 +55,11 @@ let smallUpload = async (req, res) => {
                 description: req.body.description,
                 picture: img,
                 owner: req.user._id,
+                coordinate: coordinate,
                 rating: savedRating._id,
                 private: req.body.private === undefined ? false : req.body.private,
                 avatar: req.body.avatar === undefined ? false : req.body.avatar
             }).save()
-
-
         })
         res.status(201).send()
     } catch(e) {
@@ -55,16 +68,54 @@ let smallUpload = async (req, res) => {
     }
 }
 
-let getAllPublic = async (req, res) => {
+let getImages = async (req, res) => {
     try {
-        const allImages = await Image.find({private: false}) // add a query
-            .limit(parseInt(req.query.limit))
-            .skip(parseInt(req.query.skip))
-            .populate('rating').populate('owner').exec()
-        res.send(allImages)
+        if (req.query.lat && req.query.lon && req.query.radius) {
+
+            res.status(200).send(await getImageInRadius(
+                    req.query.radius,
+                    {
+                        lat: req.query.lat,
+                        lon: req.query.lon
+                    },
+                    parseInt(req.query.limit),
+                    parseInt(req.query.skip),
+                )
+            )
+
+        } else {
+            const allImages = await Image.find({private: false}) // add a query
+                .limit(parseInt(req.query.limit))
+                .skip(parseInt(req.query.skip))
+                .populate('rating')
+                .populate('coordonates')
+                .populate('owner').exec()
+            res.send(allImages)
+        }
     } catch (e) {
+        console.log(e)
         res.status(404).send()
     }
+}
+
+//where geolib.getDistance(UserCoordinates, {DbLat,DbLen} <= radius)
+let getImageInRadius = async (radius, userCoordinates, limit, skip) => {
+    const allCoordinates = await Coordinate.find({}).lean()
+    let coordinatesInRadius = []
+
+    allCoordinates.forEach(coordinate => {
+        if (geolib.getDistance(userCoordinates, coordinate) <= radius) {
+            coordinatesInRadius.push(coordinate._id);
+        }
+    })
+
+    const images = await Image.where('private').equals(false).where('coordinate')
+        .in(coordinatesInRadius).limit(limit).skip(skip)
+        .populate('owner').populate('comms').populate('rating').exec()
+
+
+    console.log(images.map(image=>image.title));
+    return  images
 }
 
 let likeImage = async(req, res) => {
@@ -94,7 +145,6 @@ let dislikeImage = async(req, res) => {
     }
 }
 
-
 let resetImageRating = async(req, res) => {
     try {
         const imageToLike = await Image.findById(req.body.imageId)
@@ -109,15 +159,15 @@ let resetImageRating = async(req, res) => {
 
 let isUserValid = async(req) => {
     try {
-        const token = req.header('Authorization').replace('Bearer ', '')  
+        const token = req.header('Authorization').replace('Bearer ', '')
         const decoded = jwt.verify(token, 'secret')
         const user = await User.findOne({ _id: decoded._id })
-        
+
         if (!user) {
             throw new Error('ne-am dus dracu')
         }
         return user._id;
-    
+
     } catch (e) {
         return null;
     }
@@ -126,7 +176,7 @@ let isUserValid = async(req) => {
 let getImageById = async(req, res, next) => {
     try {
         const image = await Image.findOne({_id: req.params.imageId}) // add a query
-            .populate('rating').populate('owner').exec()
+            .populate('rating').populate('owner').populate('coordonate').exec()
 
         if (!image.private) {
            return res.send(image)
@@ -150,13 +200,15 @@ let getImageById = async(req, res, next) => {
 }
 
 
+
 module.exports = {
     upload: upload,
-    getAllPublic: getAllPublic,
+    getImages: getImages,
     likeImage: likeImage,
     dislikeImage: dislikeImage,
     resetImageRating: resetImageRating,
     getImageById: getImageById,
     isUserValid:isUserValid,
-    smallUpload: smallUpload
+    smallUpload: smallUpload,
+    getImageInRadius:getImageInRadius
 }
