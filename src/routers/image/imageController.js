@@ -57,6 +57,7 @@ let smallUpload = async (req, res) => {
                 owner: req.user._id,
                 coordinate: coordinate,
                 rating: savedRating._id,
+                ratingScore: 0,
                 private: req.body.private === undefined ? false : req.body.private,
                 avatar: req.body.avatar === undefined ? false : req.body.avatar
             }).save()
@@ -70,8 +71,11 @@ let smallUpload = async (req, res) => {
 
 let getImages = async (req, res) => {
     try {
+        let sortBy = {'createdAt': 'desc'}
+        if (req.query.sort === 'rating') {
+            sortBy = {'ratingScore' : 'desc'}
+        }
         if (req.query.lat && req.query.lon && req.query.radius) {
-
             res.status(200).send(await getImageInRadius(
                     req.query.radius,
                     {
@@ -88,6 +92,7 @@ let getImages = async (req, res) => {
                 .limit(parseInt(req.query.limit))
                 .skip(parseInt(req.query.skip))
                 .populate('rating')
+                .sort(sortBy)
                 .populate('coordonates')
                 .populate('owner').exec()
             res.send(allImages)
@@ -120,13 +125,14 @@ let getImageInRadius = async (radius, userCoordinates, limit, skip) => {
 
 let likeImage = async(req, res) => {
     try {
-        // also remove users dislike
-        const imageToLike = await Image.findById(req.body.imageId)
+        const imageToLike = await Image.findById(req.params.imageId)
         const ratingId = imageToLike.rating;
-        await ImageRating.findOneAndUpdate({_id: ratingId}, {$pull:{dislikes:req.user._id}})
-        await ImageRating.findOneAndUpdate({_id: ratingId}, {$addToSet:{likes:req.user._id}})
+        const dislikes = await ImageRating.findOneAndUpdate({_id: ratingId}, {$pull: {dislikes: req.user._id}}, {new: true})
+        const likes = await ImageRating.findOneAndUpdate({_id: ratingId}, {$addToSet: {likes: req.user._id}}, {new: true})
+        await Image.updateOne({_id:imageToLike._id}, {ratingScore: likes.likes.length - dislikes.dislikes.length})
         res.status(200).send()
     } catch (e) {
+        console.log(e);
         res.status(505).send()
     }
 }
@@ -134,13 +140,15 @@ let likeImage = async(req, res) => {
 let dislikeImage = async(req, res) => {
 
     try {
-        const imageToLike = await Image.findById(req.body.imageId)
+        const imageToLike = await Image.findById(req.params.imageId)
         const ratingId = imageToLike.rating;
-        await ImageRating.findOneAndUpdate({_id: ratingId}, {$pull:{likes:req.user._id}})
-        await ImageRating.findOneAndUpdate({_id: ratingId}, {$addToSet:{dislikes:req.user._id}})
+        const likes = await ImageRating.findOneAndUpdate({_id: ratingId}, {$pull: {likes: req.user._id}}, {new: true})
+        const dislikes = await ImageRating.findOneAndUpdate({_id: ratingId}, {$addToSet: {dislikes: req.user._id}}, {new: true})
+        await Image.updateOne({_id: imageToLike._id}, {ratingScore: likes.likes.length - dislikes.dislikes.length})
         res.status(200).send()
 
     } catch (e) {
+        console.log(e);
         res.status(505).send()
     }
 }
