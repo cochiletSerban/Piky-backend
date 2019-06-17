@@ -27,7 +27,8 @@ let upload = async (req,  res) => {
             picture: image.buffer,
             owner: req.user._id,
             rating: savedRating._id,
-            coordinate: coordinate._id,
+            coordinate: coordinate,
+            tags: JSON.parse(req.body.tags),
             private: req.body.private === undefined ? false : req.body.private,
             avatar: req.body.avatar === undefined ? false : req.body.avatar
         }).save()
@@ -58,6 +59,7 @@ let smallUpload = async (req, res) => {
                 coordinate: coordinate,
                 rating: savedRating._id,
                 ratingScore: 0,
+                tags: JSON.parse(req.body.tags),
                 private: req.body.private === undefined ? false : req.body.private,
                 avatar: req.body.avatar === undefined ? false : req.body.avatar
             }).save()
