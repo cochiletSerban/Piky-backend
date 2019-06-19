@@ -29,8 +29,13 @@ let getAllTags = async (req, res) => {
 
         for (resp of response) {
             let imageUrl =  await axios.get('https://pixabay.com/api?' + querystring.stringify({ key: '12801090-f0058b673854f855fe7fa6cf1', q:resp.tag}))
-            imageUrl = imageUrl.data.hits[0].largeImageURL
-            resp.imageUrl = imageUrl
+            console.log(imageUrl);
+            if (imageUrl.data.totalHits > 0) {
+                imageUrl = imageUrl.data.hits[0].largeImageURL
+                resp.imageUrl = imageUrl
+            } else {
+                resp.imageUrl = null
+            }
         }
 
         res.status(200).send(response)
