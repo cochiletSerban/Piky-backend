@@ -44,7 +44,9 @@ let getAllTags = async (req, res) => {
 
 let getTagByName = async(req, res) => {
     try {
-        let resp = {}
+        let resp = {
+            tag: req.params.tagName
+        }
         resp.nrOfPosts = await Image.find({tags: req.params.tagName}).countDocuments()
         let imageUrl =  await axios.get('https://pixabay.com/api?' + querystring.stringify({ key: '12801090-f0058b673854f855fe7fa6cf1', q:req.params.tagName}))
 
