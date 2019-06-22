@@ -5,7 +5,6 @@ const axios = require('axios')
 const querystring = require('query-string');
 
 let getAllTags = async (req, res) => {
-    let tagArray;
     try {
         const limit = parseInt(req.query.limit)
         const skip = parseInt(req.query.skip)
@@ -29,9 +28,8 @@ let getAllTags = async (req, res) => {
 
         for (resp of response) {
             let imageUrl =  await axios.get('https://pixabay.com/api?' + querystring.stringify({ key: '12801090-f0058b673854f855fe7fa6cf1', q:resp.tag}))
-            console.log(imageUrl);
             if (imageUrl.data.totalHits > 0) {
-                imageUrl = imageUrl.data.hits[0].largeImageURL
+                imageUrl = imageUrl.data.hits[0].previewURL
                 resp.imageUrl = imageUrl
             } else {
                 resp.imageUrl = null
@@ -40,10 +38,29 @@ let getAllTags = async (req, res) => {
 
         res.status(200).send(response)
     } catch (e) {
-        console.log(e)
+        res.status(400).send()
+    }
+}
+
+let getTagByName = async(req, res) => {
+    try {
+        let resp = {}
+        resp.nrOfPosts = await Image.find({tags: req.params.tagName}).countDocuments()
+        let imageUrl =  await axios.get('https://pixabay.com/api?' + querystring.stringify({ key: '12801090-f0058b673854f855fe7fa6cf1', q:req.params.tagName}))
+
+        if (imageUrl.data.totalHits > 0) {
+            imageUrl = imageUrl.data.hits[0].webformatURL.replace('_640', '_960')
+            resp.imageUrl = imageUrl
+        } else {
+            resp.imageUrl = null
+        }
+        res.status(200).send(resp)
+    } catch (e) {
+        res.status(400).send()
     }
 }
 
 module.exports = {
-    getAllTags: getAllTags
+    getAllTags: getAllTags,
+    getTagByName: getTagByName
 }
