@@ -90,7 +90,11 @@ let getImages = async (req, res) => {
             )
 
         } else {
-            const allImages = await Image.find({private: false}) // add a query
+            let query = {};
+            if (req.query.tag) {
+                query.tags = req.query.tag
+            }
+            const allImages = await Image.find(query).where('private').equals(false) // add a query
                 .limit(parseInt(req.query.limit))
                 .skip(parseInt(req.query.skip))
                 .populate('rating')
@@ -104,6 +108,26 @@ let getImages = async (req, res) => {
         res.status(404).send()
     }
 }
+
+/*
+makeResponsePretty(resp , objField) {
+    const set = new Set();
+    return resp.map((v, index) => {
+        if (set.has(v[objField])) {
+            return false;
+        } else {
+            set.add(v[objField]);
+            return index;
+        }
+      }).filter(e => e)
+        .map(e => {
+          const obj = {};
+          obj[objField] = resp[e][objField];
+          return  obj;
+        });
+  }
+
+*/
 
 //where geolib.getDistance(UserCoordinates, {DbLat,DbLen} <= radius)
 let getImageInRadius = async (radius, userCoordinates, limit, skip) => {
