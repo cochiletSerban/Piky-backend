@@ -12,7 +12,7 @@ const geolib = require('geolib');
 let upload = async (req,  res) => {
     let savedRating;
     let coordinate;
-    req.files.forEach(async image => {
+    for (image of req.files) {
         savedRating = await new ImageRating({}).save()
         if (req.body.avatar === false) {
             coordinate = await new Coordinate({
@@ -32,7 +32,7 @@ let upload = async (req,  res) => {
             private: req.body.private === undefined ? false : req.body.private,
             avatar: req.body.avatar === undefined ? false : req.body.avatar
         }).save()
-    })
+    }
     res.status(201).send()
 }
 
@@ -40,7 +40,7 @@ let smallUpload = async (req, res) => {
     try {
         let savedRating;
         let coordinate;
-        req.files.forEach(async image => {
+        for (image of req.files) {
             savedRating = await new ImageRating({}).save()
             if (req.body.avatar === false) {
                 coordinate = await new Coordinate({
@@ -49,7 +49,6 @@ let smallUpload = async (req, res) => {
                 }).save()
             }
             const img = await sharp(image.buffer).resize({ width: 269 }).toBuffer() // maybe 500px
-
             await new Image({
                 title: req.body.title,
                 fileName: image.originalname,
@@ -63,7 +62,7 @@ let smallUpload = async (req, res) => {
                 private: req.body.private === undefined ? false : req.body.private,
                 avatar: req.body.avatar === undefined ? false : req.body.avatar
             }).save()
-        })
+        }
         res.status(201).send()
     } catch(e) {
         console.log(e);
