@@ -36,11 +36,15 @@ const imageSchema = new mongoose.Schema({
     },
     ratingScore: {
         type: Number,
-        required:true
+        required: true
     },
     comms: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'ImageComment'
+    },
+    numberOfComments: {
+        type: Number,
+        required: true
     },
     coordinate: {
         type: mongoose.Schema.Types.ObjectId,
@@ -75,6 +79,7 @@ imageSchema.options.toObject.transform = function (doc, ret) {
     ret.picture = ret.picture.toString('base64');
     ret.picture = 'data:image/png;base64,' + ret.picture
     delete ret.owner
+    delete ret.numberOfComments
     //delete ret.picture
     return ret
 }

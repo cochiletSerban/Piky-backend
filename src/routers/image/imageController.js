@@ -29,6 +29,7 @@ let upload = async (req,  res) => {
             rating: savedRating._id,
             coordinate: coordinate,
             tags: JSON.parse(req.body.tags),
+            numberOfComments: 0,
             private: req.body.private === undefined ? false : req.body.private,
             avatar: req.body.avatar === undefined ? false : req.body.avatar
         }).save()
@@ -59,6 +60,7 @@ let smallUpload = async (req, res) => {
                 rating: savedRating._id,
                 ratingScore: 0,
                 tags: JSON.parse(req.body.tags),
+                numberOfComments: 0,
                 private: req.body.private === undefined ? false : req.body.private,
                 avatar: req.body.avatar === undefined ? false : req.body.avatar
             }).save()
@@ -72,10 +74,14 @@ let smallUpload = async (req, res) => {
 
 let getImages = async (req, res) => {
     try {
-        let sortBy = {'createdAt': 'desc'}
-        if (req.query.sort === 'rating') {
-            sortBy = {'ratingScore' : 'desc'}
+        let sortBy = {};
+        if (req.query.sort) {
+            sortBy[req.query.sort[0]] = 'desc'
+            sortBy.createdAt = req.query.sort[1]
+        } else {
+           sortBy = {'createdAt': 'desc'}
         }
+
         if (req.query.lat && req.query.lon && req.query.radius) {
             res.status(200).send(await getImageInRadius(
                     req.query.radius,
