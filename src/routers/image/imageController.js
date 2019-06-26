@@ -79,6 +79,8 @@ let getImages = async (req, res) => {
             sortBy[req.query.sort[0]] = 'desc'
             sortBy.createdAt = req.query.sort[1]
         } else {
+            console.log('nebunie');
+            
            sortBy = {'createdAt': 'desc'}
         }
 

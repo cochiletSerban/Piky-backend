@@ -78,7 +78,6 @@ imageSchema.options.toObject.transform = function (doc, ret) {
     delete ret.rating.__v
     ret.picture = ret.picture.toString('base64');
     ret.picture = 'data:image/png;base64,' + ret.picture
-    delete ret.owner
     delete ret.numberOfComments
     //delete ret.picture
     return ret
