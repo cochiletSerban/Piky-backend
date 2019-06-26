@@ -14,7 +14,7 @@ let upload = async (req,  res) => {
     let coordinate;
     for (image of req.files) {
         savedRating = await new ImageRating({}).save()
-        if (req.body.avatar === false) {
+        if (Boolean(req.body.avatar) === false) {
             coordinate = await new Coordinate({
                 lat: req.body.lat,
                 lon: req.body.lon,
@@ -27,7 +27,7 @@ let upload = async (req,  res) => {
             picture: image.buffer,
             owner: req.user._id,
             rating: savedRating._id,
-            coordinate: coordinate,
+            coordinate: coordinate._id,
             tags: JSON.parse(req.body.tags),
             numberOfComments: 0,
             private: req.body.private === undefined ? false : req.body.private,
@@ -43,7 +43,7 @@ let smallUpload = async (req, res) => {
         let coordinate;
         for (image of req.files) {
             savedRating = await new ImageRating({}).save()
-            if (req.body.avatar === false) {
+            if (Boolean(req.body.avatar) === false) {
                 coordinate = await new Coordinate({
                     lat: req.body.lat,
                     lon: req.body.lon,
@@ -56,7 +56,7 @@ let smallUpload = async (req, res) => {
                 description: req.body.description,
                 picture: img,
                 owner: req.user._id,
-                coordinate: coordinate,
+                coordinate: coordinate._id,
                 rating: savedRating._id,
                 ratingScore: 0,
                 tags: JSON.parse(req.body.tags),
@@ -79,8 +79,6 @@ let getImages = async (req, res) => {
             sortBy[req.query.sort[0]] = 'desc'
             sortBy.createdAt = req.query.sort[1]
         } else {
-            console.log('nebunie');
-            
            sortBy = {'createdAt': 'desc'}
         }
 
@@ -138,7 +136,10 @@ makeResponsePretty(resp , objField) {
 
 //where geolib.getDistance(UserCoordinates, {DbLat,DbLen} <= radius)
 let getImageInRadius = async (radius, userCoordinates, limit, skip) => {
+  
+    
     const allCoordinates = await Coordinate.find({}).lean()
+    console.log(allCoordinates);
     let coordinatesInRadius = []
 
     allCoordinates.forEach(coordinate => {
