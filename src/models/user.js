@@ -90,17 +90,15 @@ userSchema.methods.generateAuthToken = async function () {
     const token = jwt.sign({
         _id: user._id.toString(),
         username: user.username,
-        role: user.role,
-        active: user.active
+        radius: user.radius
     }, 'secret')
     return token
 }
 
 userSchema.statics.findByCredentials = async (email, password) => {
-   
-    
+
     const user = await User.findOne({ email })
-    
+
 
     if (!user) {
         throw new Error('Unable to login')
