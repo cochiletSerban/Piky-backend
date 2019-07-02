@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: Buffer
     },
+    radius: {
+        type: Number,
+        default: 500,
+    }
 }, {
     toObject: {}
 })

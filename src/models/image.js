@@ -3,7 +3,6 @@ const mongoose = require('mongoose')
 const imageSchema = new mongoose.Schema({
     title: {
         type: String,
-        //required: true,
         trim: true
     },
     fileName: {
@@ -13,12 +12,11 @@ const imageSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        //required: true,
         trim: true
     },
     tags: {
         type: [String],
-        required: true
+        default: 'all'
     },
     picture: {
         type: Buffer,
@@ -36,7 +34,7 @@ const imageSchema = new mongoose.Schema({
     },
     ratingScore: {
         type: Number,
-        required: true
+        default: 0
     },
     comms: {
         type: [mongoose.Schema.Types.ObjectId],
@@ -44,7 +42,7 @@ const imageSchema = new mongoose.Schema({
     },
     numberOfComments: {
         type: Number,
-        required: true
+        default: 0
     },
     coordinate: {
         type: mongoose.Schema.Types.ObjectId,
@@ -52,11 +50,11 @@ const imageSchema = new mongoose.Schema({
     },
     private: {
         type: Boolean,
-        required: true
+        default: false
     },
     avatar: {
         type: Boolean,
-        required: true
+        default: false
     }
 }, {
     timestamps: true,

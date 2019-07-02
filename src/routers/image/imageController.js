@@ -28,10 +28,9 @@ let upload = async (req,  res) => {
             owner: req.user._id,
             rating: savedRating._id,
             coordinate: coordinate._id,
-            tags: JSON.parse(req.body.tags),
-            numberOfComments: 0,
-            private: req.body.private === undefined ? false : req.body.private,
-            avatar: req.body.avatar === undefined ? false : req.body.avatar
+            tags: req.body.tags !== undefined ? JSON.parse(req.body.tags) : undefined,
+            private: req.body.private,
+            avatar: req.body.avatar
         }).save()
     }
     res.status(201).send()
@@ -58,11 +57,9 @@ let smallUpload = async (req, res) => {
                 owner: req.user._id,
                 coordinate: coordinate._id,
                 rating: savedRating._id,
-                ratingScore: 0,
-                tags: JSON.parse(req.body.tags),
-                numberOfComments: 0,
-                private: req.body.private === undefined ? false : req.body.private,
-                avatar: req.body.avatar === undefined ? false : req.body.avatar
+                tags: req.body.tags !== undefined ? JSON.parse(req.body.tags) : undefined,
+                private: req.body.private,
+                avatar: req.body.avatar
             }).save()
         }
         res.status(201).send()
@@ -136,8 +133,7 @@ makeResponsePretty(resp , objField) {
 
 //where geolib.getDistance(UserCoordinates, {DbLat,DbLen} <= radius)
 let getImageInRadius = async (radius, userCoordinates, limit, skip) => {
-  
-    
+
     const allCoordinates = await Coordinate.find({}).lean()
     console.log(allCoordinates);
     let coordinatesInRadius = []
