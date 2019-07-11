@@ -70,14 +70,11 @@ imageSchema.options.toObject.transform = function (doc, ret) {
     delete ret.updatedAt
     delete ret.__v
     delete ret.id
-    ret.comms = ret.comms.length
     delete ret.owner.password
     delete ret.rating._id
     delete ret.rating.__v
     ret.picture = ret.picture.toString('base64');
     ret.picture = 'data:image/png;base64,' + ret.picture
-    delete ret.numberOfComments
-    //delete ret.picture
     return ret
 }
 

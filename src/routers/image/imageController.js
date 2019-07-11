@@ -2,6 +2,7 @@ const Image = require('../../models/image')
 const User = require('../../models/user')
 
 const ImageRating = require('../../models/imageRating')
+const ImageComment = require('../../models/imageComment')
 const Coordinate = require('../../models/coordinate')
 const jwt = require('jsonwebtoken')
 const httpErrors = require('http-errors')
@@ -134,8 +135,9 @@ makeResponsePretty(resp , objField) {
 //where geolib.getDistance(UserCoordinates, {DbLat,DbLen} <= radius)
 let getImageInRadius = async (radius, userCoordinates, limit, skip) => {
 
+    let imageComments = []
+
     const allCoordinates = await Coordinate.find({}).lean()
-    console.log(allCoordinates);
     let coordinatesInRadius = []
 
     allCoordinates.forEach(coordinate => {
@@ -146,11 +148,28 @@ let getImageInRadius = async (radius, userCoordinates, limit, skip) => {
 
     const images = await Image.where('private').equals(false).where('coordinate')
         .in(coordinatesInRadius).limit(limit).skip(skip)
-        .populate('owner').populate('comms').populate('rating').exec()
+        .populate('owner')
+        .populate('rating').exec()
 
-
-    console.log(images.map(image=>image.title));
-    return  images
+        for (const image of images) {
+            if (image.numberOfComments === 0) {
+                continue;
+            }
+            let comms = await ImageComment.where('_id').in(image.comms)
+            .limit(3)
+            .skip(0)
+            .populate('owner')
+            .sort({'createdAt': 'desc'})
+            .exec()
+            comms = comms.map(comm => {
+                return  {
+                    ...comm.toJSON(),
+                    imageId: image._id
+                }
+            })
+            imageComments.push(...comms)
+        }
+    return  {images, imageComments}
 }
 
 let likeImage = async(req, res) => {

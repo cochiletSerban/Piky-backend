@@ -74,6 +74,7 @@ userSchema.options.toObject.transform = function (doc, ret) {
     delete ret.entries
     delete ret.id
     delete ret.password
+    delete ret.radius
     if (ret.avatar) {
         ret.avatar = ret.avatar.toString('base64');
         ret.avatar = 'data:image/png;base64,' + ret.avatar
