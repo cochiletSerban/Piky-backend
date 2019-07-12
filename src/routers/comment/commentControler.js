@@ -31,7 +31,8 @@ let getCommentsByPictureId = async(req, res) => {
     res.send(comms)
 }
 
+
 module.exports = {
     postComment: postComment,
-    getCommentsByPictureId: getCommentsByPictureId
+    getCommentsByPictureId: getCommentsByPictureId,
 }

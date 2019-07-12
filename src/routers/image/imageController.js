@@ -89,6 +89,7 @@ let getImages = async (req, res) => {
                     },
                     parseInt(req.query.limit),
                     parseInt(req.query.skip),
+                    req.query.comments
                 )
             )
 
@@ -133,8 +134,7 @@ makeResponsePretty(resp , objField) {
 */
 
 //where geolib.getDistance(UserCoordinates, {DbLat,DbLen} <= radius)
-let getImageInRadius = async (radius, userCoordinates, limit, skip) => {
-
+let getImageInRadius = async (radius, userCoordinates, limit, skip, comments = false) => {
     let imageComments = []
 
     const allCoordinates = await Coordinate.find({}).lean()
@@ -151,25 +151,30 @@ let getImageInRadius = async (radius, userCoordinates, limit, skip) => {
         .populate('owner')
         .populate('rating').exec()
 
-        for (const image of images) {
-            if (image.numberOfComments === 0) {
-                continue;
-            }
-            let comms = await ImageComment.where('_id').in(image.comms)
-            .limit(3)
-            .skip(0)
-            .populate('owner')
-            .sort({'createdAt': 'desc'})
-            .exec()
-            comms = comms.map(comm => {
-                return  {
-                    ...comm.toJSON(),
-                    imageId: image._id
+        if (comments) {
+
+            for (const image of images) {
+                if (image.numberOfComments === 0) {
+                    continue;
                 }
-            })
-            imageComments.push(...comms)
+                let comms = await ImageComment.where('_id').in(image.comms)
+                .limit(3)
+                .skip(0)
+                .populate('owner')
+                .sort({'createdAt': 'desc'})
+                .exec()
+                comms = comms.map(comm => {
+                    return  {
+                        ...comm.toJSON(),
+                        imageId: image._id
+                    }
+                })
+                imageComments.push(...comms)
+            }
+            return imageComments
         }
-    return  {images, imageComments}
+    return images
+    
 }
 
 let likeImage = async(req, res) => {
