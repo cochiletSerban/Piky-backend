@@ -149,6 +149,7 @@ let getImageInRadius = async (radius, userCoordinates, limit, skip, comments = f
     const images = await Image.where('private').equals(false).where('coordinate')
         .in(coordinatesInRadius).limit(limit).skip(skip)
         .populate('owner')
+        .populate('coordinate')
         .populate('rating').exec()
 
         if (comments) {
