@@ -139,9 +139,8 @@ let getImageInRadius = async (radius, userCoordinates, limit, skip, comments = f
 
     const allCoordinates = await Coordinate.find({}).lean()
     let coordinatesInRadius = []
-
     allCoordinates.forEach(coordinate => {
-        if (geolib.getDistance(userCoordinates, coordinate) <= radius) {
+        if (geolib.isPointWithinRadius(userCoordinates, coordinate, radius)) {
             coordinatesInRadius.push(coordinate._id);
         }
     })
